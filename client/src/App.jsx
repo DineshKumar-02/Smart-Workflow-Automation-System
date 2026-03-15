@@ -1,6 +1,10 @@
+import New from "./New";
+
 function App() {
   return (
-    <h1>Hii hello</h1>
+    <div>
+      <New />
+    </div>
   );
 }
 
