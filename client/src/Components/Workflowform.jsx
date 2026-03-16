@@ -1,55 +1,44 @@
-import React, { useState } from "react";
+import { useState } from 'react'
+import { createWorkflow } from '../Services/Api'
 
-function WorkflowForm({ setWorkflows, setMessage }) {
-  const [formData, setFormData] = useState({
-    name: "",
-    amount: "",
-    department: ""
-  });
+function Workflowform({ onCreated }) {
+  const [name, setName] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // For now, just update the table locally
-    const newWorkflow = {
-      id: Date.now(),
-      ...formData,
-      status: "Pending",
-      priority: ""
-    };
-
-    setWorkflows(prev => [...prev, newWorkflow]);
-    setMessage("Workflow submitted successfully!");
-    setFormData({ name: "", amount: "", department: "" });
-  };
+  const handleSubmit = async () => {
+    if (!name) return alert('Enter workflow name')
+    setLoading(true)
+    try {
+      await createWorkflow({ name, version: 1, is_active: true })
+      setName('')
+      onCreated() // refresh the list in parent
+      alert('Workflow created!')
+    } catch (err) {
+      alert('Error creating workflow')
+    }
+    setLoading(false)
+  }
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
+    <div style={styles.form}>
+      <h3>➕ Create New Workflow</h3>
       <input
-        name="name"
-        placeholder="Request Name"
-        value={formData.name}
-        onChange={handleChange}
+        style={styles.input}
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Workflow name (e.g. Expense Approval)"
       />
-      <input
-        name="amount"
-        placeholder="Amount"
-        value={formData.amount}
-        onChange={handleChange}
-      />
-      <input
-        name="department"
-        placeholder="Department"
-        value={formData.department}
-        onChange={handleChange}
-      />
-      <button type="submit">Submit</button>
-    </form>
-  );
+      <button onClick={handleSubmit} style={styles.button} disabled={loading}>
+        {loading ? 'Creating...' : 'Create Workflow'}
+      </button>
+    </div>
+  )
 }
 
-export default WorkflowForm;
+const styles = {
+  form: { background: '#f9f9f9', padding: '16px', borderRadius: '8px', marginBottom: '20px' },
+  input: { padding: '8px 12px', width: '300px', marginRight: '10px', borderRadius: '6px', border: '1px solid #ccc' },
+  button: { padding: '8px 16px', background: '#4f46e5', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }
+}
+
+export default Workflowform
