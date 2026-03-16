@@ -7,8 +7,7 @@ function Nav() {
       <span style={styles.logo}>⚡ FlowForge</span>
       <div style={styles.links}>
         <Link to="/" style={styles.link}>Dashboard</Link>
-        <Link to="/approval" style={styles.link}>Approvals</Link>
-        <Link to="/audit" style={styles.link}>Audit Log</Link>
+        <Link to="/approval" style={styles.link}>Approval</Link>
         <Notification />
       </div>
     </nav>

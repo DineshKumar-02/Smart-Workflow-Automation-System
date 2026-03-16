@@ -6,13 +6,12 @@ function Workflowform({ onCreated }) {
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async () => {
-    if (!name) return alert('Enter workflow name')
+    if (!name) return alert('Enter a workflow name')
     setLoading(true)
     try {
       await createWorkflow({ name, version: 1, is_active: true })
       setName('')
-      onCreated() // refresh the list in parent
-      alert('Workflow created!')
+      onCreated()
     } catch (err) {
       alert('Error creating workflow')
     }
@@ -26,10 +25,10 @@ function Workflowform({ onCreated }) {
         style={styles.input}
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="Workflow name (e.g. Expense Approval)"
+        placeholder="e.g. Expense Approval"
       />
       <button onClick={handleSubmit} style={styles.button} disabled={loading}>
-        {loading ? 'Creating...' : 'Create Workflow'}
+        {loading ? 'Creating...' : 'Create'}
       </button>
     </div>
   )
@@ -37,7 +36,7 @@ function Workflowform({ onCreated }) {
 
 const styles = {
   form: { background: '#f9f9f9', padding: '16px', borderRadius: '8px', marginBottom: '20px' },
-  input: { padding: '8px 12px', width: '300px', marginRight: '10px', borderRadius: '6px', border: '1px solid #ccc' },
+  input: { padding: '8px 12px', width: '280px', marginRight: '10px', borderRadius: '6px', border: '1px solid #ccc' },
   button: { padding: '8px 16px', background: '#4f46e5', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }
 }
 

@@ -17,7 +17,8 @@ function Dashboard() {
       const res = await getWorkflows()
       setWorkflows(res.data)
     } catch (err) {
-      console.error('Error fetching workflows:', err)
+      console.log('Backend not connected yet')
+      setWorkflows([])
     }
     setLoading(false)
   }
@@ -27,10 +28,8 @@ function Dashboard() {
       <h1>⚡ FlowForge Dashboard</h1>
       <p style={{ color: '#666' }}>Design workflows, define rules, and automate your processes.</p>
 
-      {/* Create Workflow Form */}
       <Workflowform onCreated={fetchWorkflows} />
 
-      {/* Workflows Table */}
       <h2>All Workflows</h2>
       {loading ? (
         <p>Loading...</p>

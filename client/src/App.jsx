@@ -1,40 +1,29 @@
-// import New from "./New";
-
-// function App() {
-//   return (
-//     <div>
-//       <New />
-//     </div>
-//   );
-// }
-
-// export default App;
-
-
-import Workflowform from "./components/Workflowform";
-import WorkflowTable from "./components/WorkflowTable";
-import Notification from "./components/Notification";
-import React, { useState } from "react";
-
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Nav from './Components/Nav'
+import Dashboard from './Pages/Dashboard'
+import Approval from './Pages/Approval'
+import WorkflowEditor from './Pages/WorkflowEditor'
+import RuleEditor from './Pages/RuleEditor'
+import ExecutionView from './Pages/ExecutionView'
+import AuditLog from './Pages/AuditLog'
+import Notification from "./Components/Notification";
 
 function App() {
-  const [workflows, setWorkflows] = useState([]);
-  const [message, setMessage] = useState("");
-
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Workflow Automation System</h1>
-
-      <Workflowform
-        setWorkflows={setWorkflows}
-        setMessage={setMessage}
-      />
-
-      <Notification message={message} />
-
-      <WorkflowTable workflows={workflows} />
-    </div>
-  );
+    <BrowserRouter>
+      <Nav />
+      <div style={{ padding: '20px' }}>
+        <Routes>
+          <Route path="/"                      element={<Dashboard />} />
+          <Route path="/approval"              element={<Approval />} />
+          <Route path="/workflow/:id/edit"     element={<WorkflowEditor />} />
+          <Route path="/workflow/:id/rules"    element={<RuleEditor />} />
+          <Route path="/workflow/:id/execute"  element={<ExecutionView />} />
+          <Route path="/audit"                 element={<AuditLog />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
+  )
 }
 
-export default App;
+export default App
