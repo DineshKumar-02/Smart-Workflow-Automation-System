@@ -1,57 +1,75 @@
-import { deleteWorkflow } from '../Services/Api'
+import { deleteWorkflow, updateWorkflow } from "../Services/Api"
 
 function Workflowtable({ workflows, onRefresh }) {
 
   const handleDelete = async (id) => {
-    if (!confirm('Delete this workflow?')) return
+    if (!confirm("Delete this workflow?")) return
     await deleteWorkflow(id)
     onRefresh()
   }
 
+  const handleEdit = async (wf) => {
+    const newName = prompt("Edit name:", wf.name)
+    if (!newName) return
+
+    await updateWorkflow(wf._id, { name: newName })
+    onRefresh()
+  }
+
   return (
-    <div>
-      <table style={styles.table}>
-        <thead>
-          <tr style={styles.headerRow}>
-            <th style={styles.th}>Name</th>
-            <th style={styles.th}>Version</th>
-            <th style={styles.th}>Status</th>
-            <th style={styles.th}>Actions</th>
+    <table style={styles.table}>
+      <thead>
+        <tr style={styles.header}>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th>Started By</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {workflows.map(wf => (
+          <tr key={wf._id}>
+            <td>{wf._id}</td>
+            <td>{wf.name}</td>
+            <td>{wf.type}</td>
+            <td>{wf.status}</td>
+            <td>{wf.startedBy}</td>
+            <td>{wf.startDate}</td>
+            <td>{wf.endDate}</td>
+            <td>
+              <button onClick={() => handleEdit(wf)} style={styles.edit}>Edit</button>
+              <button onClick={() => handleDelete(wf._id)} style={styles.delete}>Delete</button>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          {workflows.map(wf => (
-            <tr key={wf._id} style={styles.row}>
-              <td style={styles.td}>{wf.name}</td>
-              <td style={styles.td}>v{wf.version}</td>
-              <td style={styles.td}>
-                <span style={{ color: wf.is_active ? 'green' : 'gray' }}>
-                  {wf.is_active ? '✅ Active' : '⛔ Inactive'}
-                </span>
-              </td>
-              <td style={styles.td}>
-                <button onClick={() => handleDelete(wf._id)} style={styles.deleteBtn}>Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {workflows.length === 0 && (
-        <p style={{ textAlign: 'center', color: '#888', marginTop: '20px' }}>
-          No workflows yet. Create one above!
-        </p>
-      )}
-    </div>
+        ))}
+      </tbody>
+    </table>
   )
 }
 
 const styles = {
-  table: { width: '100%', borderCollapse: 'collapse' },
-  headerRow: { background: '#1e1e2e', color: 'white' },
-  row: { borderBottom: '1px solid #eee' },
-  th: { padding: '12px', textAlign: 'left' },
-  td: { padding: '10px 12px' },
-  deleteBtn: { padding: '4px 10px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }
+  table: { width: "100%", borderCollapse: "collapse" },
+  header: { background: "#1e293b", color: "white" },
+  edit: {
+    marginRight: "6px",
+    padding: "6px",
+    background: "#3b82f6",
+    color: "white",
+    border: "none",
+    borderRadius: "6px"
+  },
+  delete: {
+    padding: "6px",
+    background: "#ef4444",
+    color: "white",
+    border: "none",
+    borderRadius: "6px"
+  }
 }
 
-export default Workflowtable
+export default Workflowtable 

@@ -1,41 +1,30 @@
-import { useState, useEffect } from 'react'
-import Workflowform from '../Components/Workflowform'
-import Workflowtable from '../Components/workflowtable'
-import { getWorkflows } from '../Services/Api'
+import { useEffect, useState } from "react"
+import Workflowform from "../Components/Workflowform"
+import Workflowtable from "../Components/Workflowtable"
+import { getWorkflows } from "../Services/Api"
 
 function Dashboard() {
   const [workflows, setWorkflows] = useState([])
-  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetchWorkflows()
-  }, [])
-
-  const fetchWorkflows = async () => {
-    setLoading(true)
-    try {
-      const res = await getWorkflows()
-      setWorkflows(res.data)
-    } catch (err) {
-      console.log('Backend not connected yet')
-      setWorkflows([])
-    }
-    setLoading(false)
+  const fetchData = async () => {
+    const res = await getWorkflows()
+    setWorkflows(res.data)
   }
 
+  useEffect(() => {
+    fetchData()
+  }, [])
+
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <h1>⚡ FlowForge Dashboard</h1>
-      <p style={{ color: '#666' }}>Design workflows, define rules, and automate your processes.</p>
+      <p style={{ color: "#555" }}>
+        Manage workflows with smart automation
+      </p>
 
-      <Workflowform onCreated={fetchWorkflows} />
+      <Workflowform onCreated={fetchData} />
 
-      <h2>All Workflows</h2>
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <Workflowtable workflows={workflows} onRefresh={fetchWorkflows} />
-      )}
+      <Workflowtable workflows={workflows} onRefresh={fetchData} />
     </div>
   )
 }

@@ -1,43 +1,69 @@
-import { useState } from 'react'
-import { createWorkflow } from '../Services/Api'
+import { useState } from "react"
+import { createWorkflow } from "../Services/Api"
 
 function Workflowform({ onCreated }) {
-  const [name, setName] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [name, setName] = useState("")
+  const [type, setType] = useState("Leave Approval")
 
   const handleSubmit = async () => {
-    if (!name) return alert('Enter a workflow name')
-    setLoading(true)
-    try {
-      await createWorkflow({ name, version: 1, is_active: true })
-      setName('')
-      onCreated()
-    } catch (err) {
-      alert('Error creating workflow')
-    }
-    setLoading(false)
+    if (!name) return alert("Enter workflow name")
+
+    await createWorkflow({ name, type })
+    setName("")
+    onCreated()
   }
 
   return (
     <div style={styles.form}>
-      <h3>➕ Create New Workflow</h3>
+      <h3>Create Workflow</h3>
+
       <input
         style={styles.input}
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="e.g. Expense Approval"
+        placeholder="Workflow name"
       />
-      <button onClick={handleSubmit} style={styles.button} disabled={loading}>
-        {loading ? 'Creating...' : 'Create'}
+
+      <select
+        style={styles.input}
+        value={type}
+        onChange={(e) => setType(e.target.value)}
+      >
+        <option>Leave Approval</option>
+        <option>Salary Processing</option>
+        <option>Expense Approval</option>
+        <option>Recruitment Workflow</option>
+      </select>
+
+      <button onClick={handleSubmit} style={styles.button}>
+        Create
       </button>
     </div>
   )
 }
 
 const styles = {
-  form: { background: '#f9f9f9', padding: '16px', borderRadius: '8px', marginBottom: '20px' },
-  input: { padding: '8px 12px', width: '280px', marginRight: '10px', borderRadius: '6px', border: '1px solid #ccc' },
-  button: { padding: '8px 16px', background: '#4f46e5', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }
+  form: {
+    background: "#f1f5f9",
+    padding: "20px",
+    borderRadius: "12px",
+    marginBottom: "20px"
+  },
+  input: {
+    padding: "10px",
+    marginRight: "10px",
+    borderRadius: "8px",
+    border: "1px solid #ccc"
+  },
+  button: {
+    padding: "10px 16px",
+    background: "#4f46e5",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer"
+  }
 }
 
 export default Workflowform
+

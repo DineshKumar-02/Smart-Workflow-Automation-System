@@ -5,8 +5,8 @@ import Approval from './Pages/Approval'
 import WorkflowEditor from './Pages/WorkflowEditor'
 import RuleEditor from './Pages/RuleEditor'
 import ExecutionView from './Pages/ExecutionView'
-import AuditLog from './Pages/AuditLog'
-import Notification from "./Components/Notification";
+// import AuditLog from './Pages/AuditLog' 
+import Notification from './Components/Notification'
 
 function App() {
   return (
@@ -16,10 +16,11 @@ function App() {
         <Routes>
           <Route path="/"                      element={<Dashboard />} />
           <Route path="/approval"              element={<Approval />} />
+           <Route path="/Notification"         element={<Notification />} />
           <Route path="/workflow/:id/edit"     element={<WorkflowEditor />} />
           <Route path="/workflow/:id/rules"    element={<RuleEditor />} />
           <Route path="/workflow/:id/execute"  element={<ExecutionView />} />
-          <Route path="/audit"                 element={<AuditLog />} />
+          {/* <Route path="/audit"                 element={<AuditLog />} /> */} 
         </Routes>
       </div>
     </BrowserRouter>
