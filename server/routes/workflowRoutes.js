@@ -1,13 +1,9 @@
-const express = require('express')
-const router = express.Router()
+const express   = require('express')
+const router    = express.Router()
 const Workflow  = require('../Models/Workflow')
 const Step      = require('../Models/Step')
 const Rule      = require('../Models/Rule')
 const Execution = require('../Models/Execution')
-
-// ─────────────────────────────────────────
-// WORKFLOWS
-// ─────────────────────────────────────────
 
 // GET all workflows
 router.get('/', async (req, res) => {
@@ -54,17 +50,13 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     await Workflow.findByIdAndDelete(req.params.id)
-    res.json({ message: 'Workflow deleted' })
+    res.json({ message: 'Deleted' })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
 })
 
-// ─────────────────────────────────────────
-// STEPS
-// ─────────────────────────────────────────
-
-// GET all steps for a workflow
+// GET steps
 router.get('/:id/steps', async (req, res) => {
   try {
     const steps = await Step.find({ workflow_id: req.params.id }).sort({ order: 1 })
@@ -74,7 +66,7 @@ router.get('/:id/steps', async (req, res) => {
   }
 })
 
-// ADD step to workflow
+// ADD step
 router.post('/:id/steps', async (req, res) => {
   try {
     const step = new Step({ ...req.body, workflow_id: req.params.id })
@@ -86,7 +78,7 @@ router.post('/:id/steps', async (req, res) => {
 })
 
 // DELETE step
-router.delete('/steps/:stepId', async (req, res) => {
+router.delete('/:id/steps/:stepId', async (req, res) => {
   try {
     await Step.findByIdAndDelete(req.params.stepId)
     res.json({ message: 'Step deleted' })
@@ -95,12 +87,8 @@ router.delete('/steps/:stepId', async (req, res) => {
   }
 })
 
-// ─────────────────────────────────────────
-// RULES
-// ─────────────────────────────────────────
-
-// GET all rules for a step
-router.get('/steps/:stepId/rules', async (req, res) => {
+// GET rules
+router.get('/:id/steps/:stepId/rules', async (req, res) => {
   try {
     const rules = await Rule.find({ step_id: req.params.stepId }).sort({ priority: 1 })
     res.json(rules)
@@ -109,8 +97,8 @@ router.get('/steps/:stepId/rules', async (req, res) => {
   }
 })
 
-// ADD rule to step
-router.post('/steps/:stepId/rules', async (req, res) => {
+// ADD rule
+router.post('/:id/steps/:stepId/rules', async (req, res) => {
   try {
     const rule = new Rule({ ...req.body, step_id: req.params.stepId })
     await rule.save()
@@ -121,7 +109,7 @@ router.post('/steps/:stepId/rules', async (req, res) => {
 })
 
 // DELETE rule
-router.delete('/rules/:ruleId', async (req, res) => {
+router.delete('/:id/steps/:stepId/rules/:ruleId', async (req, res) => {
   try {
     await Rule.findByIdAndDelete(req.params.ruleId)
     res.json({ message: 'Rule deleted' })
@@ -130,19 +118,14 @@ router.delete('/rules/:ruleId', async (req, res) => {
   }
 })
 
-// ─────────────────────────────────────────
-// EXECUTION — RUN WORKFLOW
-// ─────────────────────────────────────────
-
+// EXECUTE workflow
 router.post('/:id/execute', async (req, res) => {
   try {
     const { Parser } = require('expr-eval')
-    const workflow  = await Workflow.findById(req.params.id)
     const steps     = await Step.find({ workflow_id: req.params.id }).sort({ order: 1 })
     const inputData = req.body.data || {}
     const logs      = []
-
-    let currentStep = steps[0]  // start from first step
+    let currentStep = steps[0]
 
     while (currentStep) {
       const rules = await Rule.find({ step_id: currentStep._id.toString() }).sort({ priority: 1 })
@@ -150,27 +133,24 @@ router.post('/:id/execute', async (req, res) => {
       let nextStepId = null
 
       for (const rule of rules) {
-        // DEFAULT rule — fallback
         if (rule.condition === 'DEFAULT') {
           evaluatedRules.push({ rule: 'DEFAULT', result: true })
           nextStepId = rule.next_step_id
           break
         }
-        // Evaluate condition against input data
         try {
           const parser = new Parser()
           const result = parser.evaluate(rule.condition, inputData)
           evaluatedRules.push({ rule: rule.condition, result })
           if (result === true) {
             nextStepId = rule.next_step_id
-            break  // first match wins
+            break
           }
         } catch (e) {
-          evaluatedRules.push({ rule: rule.condition, result: false, error: e.message })
+          evaluatedRules.push({ rule: rule.condition, result: false })
         }
       }
 
-      // Save log for this step
       logs.push({
         step_name:          currentStep.name,
         step_type:          currentStep.step_type,
@@ -180,20 +160,14 @@ router.post('/:id/execute', async (req, res) => {
         started_at:         new Date()
       })
 
-      // Move to next step
-      if (nextStepId) {
-        currentStep = await Step.findById(nextStepId)
-      } else {
-        currentStep = null  // workflow ends
-      }
+      currentStep = nextStepId ? await Step.findById(nextStepId) : null
     }
 
-    // Save execution to DB
     const execution = new Execution({
       workflow_id:  req.params.id,
       status:       'completed',
       data:         inputData,
-      logs:         logs,
+      logs,
       triggered_by: req.body.triggered_by || 'user'
     })
     await execution.save()
@@ -203,10 +177,6 @@ router.post('/:id/execute', async (req, res) => {
     res.status(500).json({ error: err.message })
   }
 })
-
-// ─────────────────────────────────────────
-// EXECUTIONS — AUDIT LOG
-// ─────────────────────────────────────────
 
 // GET all executions
 router.get('/executions/all', async (req, res) => {
@@ -218,7 +188,7 @@ router.get('/executions/all', async (req, res) => {
   }
 })
 
-// GET one execution by ID
+// GET one execution
 router.get('/executions/:execId', async (req, res) => {
   try {
     const data = await Execution.findById(req.params.execId)
